@@ -11,6 +11,10 @@
 |
 */
 
+use App\Http\Controllers\Income_moneyController;
+use App\Models\Income_money;
+use PhpParser\Node\Expr\Include_;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -18,3 +22,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::resource('categories', 'CategoryController');
+Route::get('income_moneys/month', 'Income_moneyController@month')->name('income_moneys.month');
+
+Route::resource('income_moneys', 'Income_moneyController');

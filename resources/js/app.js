@@ -20,13 +20,30 @@ window.Vue = require('vue');
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component('line-chart', require('./components/LineChart.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-
+import Datepicker from 'vuejs-datepicker';
 const app = new Vue({
     el: '#app',
+    components: {
+        Datepicker
+    },
+    data: {
+        defaultDate: new Date(),
+        DatePickerFormat: 'yyyy-MM-dd',
+        ja: {
+            language: 'Japanese',
+            months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            monthsAbbr: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            days: ['日', '月', '火', '水', '木', '金', '土'],
+            rtl: false,
+            ymd: 'yyyy-MM-dd',
+            yearSuffix: '年'
+        }
+    }
 });
