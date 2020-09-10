@@ -9,7 +9,9 @@
                 <div class="card-body">
 
                     <div id="chart-div"></div>
+                    @foreach($income_money_all as $income)
                     {!! $lava->render("ColumnChart", "IMDB", "chart-div") !!}
+                    @endforeach
                 </div>
             </div>
         </div>

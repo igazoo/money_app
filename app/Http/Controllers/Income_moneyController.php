@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use Khill\Lavacharts\Lavacharts;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Pay_money;
 
 class Income_moneyController extends Controller
 {
@@ -18,61 +20,33 @@ class Income_moneyController extends Controller
      */
     public function month()
     {
+
         $now_date = Carbon::now();
         $now_month = $now_date->month;
-        $all = Income_money::all();
-        $now = [];
-        $now_1 = []; //先月
-        $now_2 = []; //先々月
-        foreach ($all as $income) {
-            $d = $income->date;
-            $m = strtotime($d);
-            $month = idate('m', $m);
-            //var_dump($month);
-            if ($month === $now_month) {
-                $now[] = $income->money;
-            }
-        }
-        $back_date = $now_date->month - 1;
-        foreach ($all as $income) {
-            $d = $income->date;
-            $m = strtotime($d);
-            $month = idate('m', $m);
-            //var_dump($month);
-            if ($month === $back_date) {
-                $now_1[] = $income->money;
-            }
-        }
-        $back_date_2 = $now_date->month - 2;
-        foreach ($all as $income) {
-            $d = $income->date;
-            $m = strtotime($d);
-            $month = idate('m', $m);
-            //var_dump($month);
-            if ($month === $back_date_2) {
-                $now_2[] = $income->money;
-            }
-        }
-        $sum = array_sum($now); //今月
-        $sum_1 = array_sum($now_1); //先月
-        $sum_2 = array_sum($now_2); //先々月
+        $income = new Income_money;
+        $sum = $income->now_month_sum();
+        $sum_1 = $income->last_month_sum();
+        $sum_2 = $income->last_month_2_sum();
 
-        // var_dump($now_1);
+        $pay = new Pay_money();
+        $pay_sum = $pay->now_month_sum();
+        $pay_sum_1 = $pay->last_month_sum();
+        $pay_sum_2 = $pay->last_month_2_sum();
         $lava = new Lavacharts;
 
         $reasons = $lava->DataTable();
 
         $reasons->addStringColumn("Reasons")
-            ->addNumberColumn("￥") //題名
-            ->addRow(array($now_month - 2 . '月', $sum_2))
-            ->addRow(array($now_month - 1 . '月', $sum_1))
-            ->addRow(array('今月', $sum));
+            ->addNumberColumn("収入")
+            ->addNumberColumn("支出")
+            ->addRow(array($now_month - 2 . '月', $sum_2, $pay_sum_2))
+            ->addRow(array($now_month - 1 . '月', $sum_1, $pay_sum_1))
+            ->addRow(array('今月', $sum, $pay_sum));
 
-
-
+        $all_sum = $sum - $pay_sum;
 
         $columnchart = $lava->ColumnChart("IMDB", $reasons, [
-            "title" => "収入" . "\n" . $now_month . '月' . '合計' . $sum . '円 ',
+            "title" => "集計" . "\n" . $now_month . '月'  . $all_sum . '円 ',
             'height' => 500,
             'width' => 1000,
             'titleTextStyle' => [
@@ -80,15 +54,18 @@ class Income_moneyController extends Controller
                 'fontSize' => 34
             ]
         ]);
+        $user_id = Auth::id();
+        $all_income = Income_money::where('user_id', $user_id)->get();
 
 
-
-        return view('income_moneys.month', ["lava"      => $lava], compact('sum'));
+        return view('income_moneys.month', ["lava"      => $lava], compact('sum', 'user_id', 'all_income'));
     }
     public function index()
     {
         //
-        $income_moneys = Income_money::all();
+        $user_id = Auth::id();
+        $income_moneys = Income_money::where('user_id', $user_id)->get();
+
         $m_1 = 0;
         $m_2 = 0;
         $m_3 = 0;
@@ -101,7 +78,6 @@ class Income_moneyController extends Controller
         $m_10 = 0;
         $m_11 = 0;
         $m_12 = 0;
-
 
         foreach ($income_moneys as $income) {
             $d = $income->date;
@@ -126,38 +102,88 @@ class Income_moneyController extends Controller
             } elseif ($month === 9) {
                 $m_9 += $income->money;
             } elseif ($month === 10) {
-                $m_10 += $income->money;
+                $m_10 += $income->money;;
             } elseif ($month === 11) {
-                $m_11 += $income->money;
+                $m_11 += $income->money;;
             } elseif ($month === 12) {
-                $m_12 += $income->money;
+                $m_12 += $income->money;;
             }
         }
-        $income_money_all = Income_money::all();
+        $income_money_all = Income_money::where('user_id', $user_id)->get();
         $sum = collect($income_money_all)->sum('money');
+
+
+        $pay_moneys = Pay_money::where('user_id', $user_id)->get();
+
+        $p_1 = 0;
+        $p_2 = 0;
+        $p_3 = 0;
+        $p_4 = 0;
+        $p_5 = 0;
+        $p_6 = 0;
+        $p_7 = 0;
+        $p_8 = 0;
+        $p_9 = 0;
+        $p_10 = 0;
+        $p_11 = 0;
+        $p_12 = 0;
+
+        foreach ($pay_moneys as $pay) {
+            $d = $pay->date;
+            $m = strtotime($d);
+            $month = idate('m', $m);
+            if ($month === 1) {
+                $p_1 += $pay->money;
+            } elseif ($month === 2) {
+                $p_2 += $pay->money;
+            } elseif ($month === 3) {
+                $p_3 += $pay->money;
+            } elseif ($month === 4) {
+                $p_4 += $pay->money;
+            } elseif ($month === 5) {
+                $p_5 += $pay->money;
+            } elseif ($month === 6) {
+                $p_6 += $pay->money;
+            } elseif ($month === 7) {
+                $p_7 += $pay->money;
+            } elseif ($month === 8) {
+                $p_8 += $pay->money;
+            } elseif ($month === 9) {
+                $p_9 += $pay->money;
+            } elseif ($month === 10) {
+                $p_10 += $pay->money;;
+            } elseif ($month === 11) {
+                $p_11 += $pay->money;;
+            } elseif ($month === 12) {
+                $p_12 += $pay->money;;
+            }
+        }
+        $pay_money_all = Pay_money::where('user_id', $user_id)->get();
+        $pay_sum = collect($pay_money_all)->sum('money');
 
         $lava = new Lavacharts;
 
         $reasons = $lava->DataTable();
 
         $reasons->addStringColumn("Reasons")
-            ->addNumberColumn("￥") //題名
-            ->addRow(array("1月", $m_1))
-            ->addRow(array("2月", $m_2))
-            ->addRow(array("3月", $m_3))
-            ->addRow(array("4月", $m_4))
-            ->addRow(array("5月", $m_5))
-            ->addRow(array("6月", $m_6))
-            ->addRow(array("7月", $m_7))
-            ->addRow(array("8月", $m_8))
-            ->addRow(array("9月", $m_9))
-            ->addRow(array("10月", $m_10))
-            ->addRow(array("11月", $m_11))
-            ->addRow(array("12月", $m_12));
-
+            ->addNumberColumn('収入')
+            ->addNumberColumn('支出')
+            ->addRow(array("1月", $m_1, $p_1))
+            ->addRow(array("2月", $m_2, $p_2))
+            ->addRow(array("3月", $m_3, $p_3))
+            ->addRow(array("4月", $m_4, $p_4))
+            ->addRow(array("5月", $m_5, $p_5))
+            ->addRow(array("6月", $m_6, $p_6))
+            ->addRow(array("7月", $m_7, $p_7))
+            ->addRow(array("8月", $m_8, $p_8))
+            ->addRow(array("9月", $m_9, $p_9))
+            ->addRow(array("10月", $m_10, $p_10))
+            ->addRow(array("11月", $m_11, $p_11))
+            ->addRow(array("12月", $m_12, $p_12));
+        $all_sum =  $sum - $pay_sum;
 
         $columnchart = $lava->ColumnChart("IMDB", $reasons, [
-            "title" => "収入" . '合計' . $sum . '円 ',
+            "title" =>   '集計' . $all_sum . '円 ',
             'height' => 500,
             'width' => 1000,
             'titleTextStyle' => [
@@ -165,10 +191,11 @@ class Income_moneyController extends Controller
                 'fontSize' => 34
             ]
         ]);
+        $user_id = Auth::id();
 
 
 
-        return view('income_moneys.index', ["lava"      => $lava], compact('sum'));
+        return view('income_moneys.index', ["lava"      => $lava], compact('user_id', 'income_money_all'));
     }
 
     /**
@@ -196,6 +223,7 @@ class Income_moneyController extends Controller
         $income_money->money = $request->input('money');
         $income_money->date = $request->input('date');
         $income_money->category_id = $request->input('category_id');
+        $income_money->user_id = Auth::id();
         $income_money->save();
         return redirect('income_moneys');
     }

@@ -11,8 +11,7 @@
 |
 */
 
-use App\Http\Controllers\Income_moneyController;
-use App\Models\Income_money;
+
 use PhpParser\Node\Expr\Include_;
 
 Route::get('/', function () {
@@ -26,3 +25,7 @@ Route::resource('categories', 'CategoryController');
 Route::get('income_moneys/month', 'Income_moneyController@month')->name('income_moneys.month');
 
 Route::resource('income_moneys', 'Income_moneyController');
+//Route::get('pay_moneys/month', 'Pay_moneyController@month')->name('pay_moneys.month');
+
+
+Route::resource('pay_moneys', 'Pay_moneyController');

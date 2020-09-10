@@ -57,6 +57,9 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('income_moneys.create') }}"> 収入記入</a>
+                                <a class="dropdown-item" href="{{ route('pay_moneys.create') }}">{{ __('支出記入') }}</a>
+                                <a class="dropdown-item" href="{{ route('categories.create') }}">{{ __('カテゴリー追加') }}</a>
                                 <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                     {{ __('Logout') }}
@@ -64,16 +67,16 @@
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf
                                 </form>
+
+
                             </div>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('income_moneys.create') }}">{{ __('収入記入') }}</a>
+                            <a class="nav-link" href="{{ route('income_moneys.month') }}">{{ __('今月') }}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('income_moneys.index') }}">{{ __('全体記録') }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('categories.create') }}">{{ __('カテゴリー追加') }}</a>
-                        </li>
+
                         </li>
                         @endguest
                     </ul>

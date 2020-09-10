@@ -9,12 +9,12 @@
                 <div class="card-body">
 
                     <div id="chart-div"></div>
-
-                    @foreach($all_income as $v)
-
+                    @foreach($pay_money_all as $pay)
+                    @if($pay->user_id === $user_id)
                     {!! $lava->render("ColumnChart", "IMDB", "chart-div") !!}
+                    @else
+                    @endif
                     @endforeach
-
                 </div>
             </div>
         </div>
